@@ -34,15 +34,39 @@ struct Hit {
     float3 normal;
     int matID = -1;
     float3 color;
+    float reflectivity;
 };
 constant int NUM_SPHERES = 3;
 
-/*
+/* ===================================
 TODO:
 Reflection Formula = I - 2 * dot(I, N) * N
+
 Incident ray direction: I (ray hitting surface)
 Surface normal: N (perpendicular to surface)
-*/
+
+When light bounces:
+- Some energy is absorbed by the material (becomes heat)
+- Some energy is reflected (continues as light)
+- Light gets tinted by the surface color
+
+Use attenuation: float3 atten = float(1.0f, 1.0f, 1.0f);
+atten *= hit.color * hit.reflectivity;
+
+Set a max depth => like 2 bounces
+
+for (int i = 0; i < maxBounces; i++) {
+    Hit hit = intersect(ray);
+    if (!hit) {
+        result += energy * sky;
+        break;
+    }
+    
+    result += energy * lighting(hit);      // Add this bounce's light
+    energy *= hit.color * hit.reflectivity; // Energy decreases
+    ray = reflect(ray, hit);               // Next bounce
+} return result;
+=================================== */
 
 Ray generateRay(uint2 gid, constant GPUCamera* cam, uint2 gridSize);
 float3 traceRay(Ray ray, thread Sphere* spheres, Light light);
