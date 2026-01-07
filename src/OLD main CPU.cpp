@@ -300,13 +300,13 @@ Color traceRay(const Ray& ray)
         shadowRay.direction = lightDir;
         shadowRay.origin = hit.point;
 
-        float dist_to_light = glm::distance(hit.point, lightPos);
+        float distToLight = glm::distance(hit.point, lightPos);
 
         Hit shadowHit;
         for(const Sphere &sphere : scene) {
             // Check if already hit
             if(sphere.matID == hit.matID) continue;
-            if(sphere.intersect(shadowRay, 0.001f, dist_to_light, shadowHit)){
+            if(sphere.intersect(shadowRay, 0.001f, distToLight, shadowHit)){
                 diffuse *= 0.2;
                 break;
             }
@@ -429,11 +429,11 @@ int main() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    // std::vector<glm::vec3> colorBuffer;
-    // colorBuffer.resize(SCR_WIDTH * SCR_HEIGHT);
+    std::vector<glm::vec3> colorBuffer;
+    colorBuffer.resize(SCR_WIDTH * SCR_HEIGHT);
 
-    // glGenTextures(1, &rayTexture);
-    // glBindTexture(GL_TEXTURE_2D, rayTexture);
+    glGenTextures(1, &rayTexture);
+    glBindTexture(GL_TEXTURE_2D, rayTexture);
     // Allocate intial memory
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, 
         SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, nullptr);
@@ -446,10 +446,10 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, rayTexture);
 
 // ============ Initialize Metal Render ============
-    MetalRenderer metalRenderer;
-    metalRenderer.init(SCR_WIDTH, SCR_HEIGHT);
+    // MetalRenderer metalRenderer;
+    // metalRenderer.init(SCR_WIDTH, SCR_HEIGHT);
 
-    unsigned int rayTracedTexture = metalRenderer.getOpenGLTextureID();
+    // unsigned int rayTracedTexture = metalRenderer.getOpenGLTextureID();
     
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -491,13 +491,13 @@ int main() {
         // cubeShader.setVec3("viewPos", activeCam.Position);
 
 // ============ Metal Ray Tracing ============
-        metalRenderer.render(activeCam);
+        // metalRenderer.render(activeCam);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, rayTracedTexture);
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_2D, rayTracedTexture);
 
         // Ray Tracing Calculation
-        /* for (int y = 0; y < SCR_HEIGHT; y++){
+        for (int y = 0; y < SCR_HEIGHT; y++){
             for (int x = 0; x < SCR_WIDTH; x++) {
                 Ray ray;
                 generateRay(x,y,ray);
@@ -511,26 +511,26 @@ int main() {
         
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                         SCR_WIDTH, SCR_HEIGHT,
-                        GL_RGB, GL_FLOAT, colorBuffer.data()); */
+                        GL_RGB, GL_FLOAT, colorBuffer.data());
 
         rayShader.use();
         rayShader.setTexture("screenTex", 0);
-        // glActiveTexture(GL_TEXTURE0);
-        // glBindTexture(GL_TEXTURE_2D, rayTexture);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, rayTexture);
 
 
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
 
-        /* view = activeCam.GetViewMatrix();
+        view = activeCam.GetViewMatrix();
 
         float aspect = (float)SCR_WIDTH / (float)SCR_HEIGHT;
         projection = glm::perspective(
             glm::radians(activeCam.Fov),
             aspect,
             0.1f, 100.0f
-        ); */
+        );
 
         glBindVertexArray(rayVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);

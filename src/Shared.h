@@ -11,10 +11,10 @@ using float4 = glm::vec3;
 #endif
 
 struct GPUCamera {
-    float3 position;
-    float3 front;
-    float3 up;
-    float3 right;
+    glm::vec4 position;
+    glm::vec4 front;
+    glm::vec4 up;
+    glm::vec4 right;
     float fov;
     float aspectRatio;
 };

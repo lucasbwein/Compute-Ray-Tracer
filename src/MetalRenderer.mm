@@ -13,11 +13,11 @@ int MAX_SPHERE = 4;
 
 GPUCamera toGPU(const Camera& cam, int width, int height) {
     return GPUCamera{
-        {cam.Position.x, cam.Position.y, cam.Position.z},
-        {cam.Front.x, cam.Front.y, cam.Front.z},
-        {cam.WorldUp.x, cam.WorldUp.y, cam.WorldUp.z},
-        {cam.Right.x, cam.Right.y, cam.Right.z},
-        cam.Fov,
+        {cam.Position.x, cam.Position.y, cam.Position.z, 0.0f},
+        {cam.Front.x, cam.Front.y, cam.Front.z, 0.0f},
+        {cam.Up.x, cam.Up.y, cam.Up.z, 0.0f},
+        {cam.Right.x, cam.Right.y, cam.Right.z, 0.0f},
+        glm::radians(cam.Fov),
         (float)width/(float)height
     };
 }
@@ -163,9 +163,8 @@ void MetalRenderer::render(const Camera& camera) {
             bytesPerRow:width * 4
             fromRegion:MTLRegionMake2D(0, 0, width, height)
             mipmapLevel:0];
-
+    // Bind data to openGL Texture
     glBindTexture(GL_TEXTURE_2D, glTextureID);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
                     GL_RGBA, GL_UNSIGNED_BYTE, pixelData.data());
-
 }

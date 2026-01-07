@@ -43,40 +43,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-unsigned int loadTexture(const char* path) {
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data) {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-        
-        glBindTexture(GL_TEXTURE_2D, textureID);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
-    } else {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
-}
-
 void processInput(GLFWwindow *window, Camera& camera, float deltaTime){
     static bool fWasPressed = false;
     static bool pWasPressed = false;
@@ -131,6 +97,7 @@ void processInput(GLFWwindow *window, Camera& camera, float deltaTime){
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     if(uiMode) return;
+    // camera.ProcessMouseScroll((float)yoffset);
     Camera &cam = useDebugCam ? debugCam : camera;
     cam.ProcessMouseScroll((float)yoffset);
 }
@@ -178,8 +145,8 @@ int main() {
     }
     // Make the window's context current
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1); // vsync
-    // glfwSwapInterval(0); // disables vsync
+    // glfwSwapInterval(1); // vsync
+    glfwSwapInterval(0); // disables vsync
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // register callback
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -226,7 +193,7 @@ int main() {
     metalRenderer.init(SCR_WIDTH, SCR_HEIGHT);
 
     unsigned int rayTracedTexture = metalRenderer.getOpenGLTextureID();
-    
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         float currFrame = glfwGetTime();     // current time
@@ -247,15 +214,16 @@ int main() {
         }
 
         // used in debugging
-        // if (!useDebugCam) {
-        //     debugCam.Position = camera.Position + glm::vec3(10, 10, 10);
-        //     debugCam.LookAt(camera.Position);
-        // }
+        if (!useDebugCam) {
+            debugCam.Position = camera.Position + glm::vec3(10, 10, 10);
+            debugCam.LookAt(camera.Position);
+        }
         // gets correct camera to use
         Camera& activeCam = useDebugCam ? debugCam : camera;
-
         processInput(window, activeCam, deltaTime);
 
+        // processInput(window, camera, deltaTime);
+        
         glClear(GL_COLOR_BUFFER_BIT);
 
 // ============ Metal Ray Tracing ============
@@ -282,6 +250,7 @@ int main() {
 
         // Swap front and back buffers
         glfwSwapBuffers(window);
+
         // Poll for and process events
         glfwPollEvents();
     }

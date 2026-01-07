@@ -20,7 +20,7 @@ typedef void* MTLBuffer;
 
 class MetalRenderer {
 public:
-    void init(int width, int height);
+    void init(int w, int h);
     void render(const Camera& camera);
     unsigned int getOpenGLTextureID(); // for opengl flow
     void cleanup();
