@@ -50,24 +50,6 @@ When light bounces:
 - Some energy is reflected (continues as light)
 - Light gets tinted by the surface color
 
-Use attenuation: float3 atten = float(1.0f, 1.0f, 1.0f);
-atten *= hit.color * hit.reflectivity;
-
-Set a max depth => like 2 bounces
-
-for (int i = 0; i < maxBounces; i++) {
-    Hit hit = intersect(ray);
-    if (!hit) {
-        result += energy * sky;
-        break;
-    }
-    
-    result += energy * lighting(hit);      // Add this bounce's light
-    energy *= hit.color * hit.reflectivity; // Energy decreases
-    ray = reflect(ray, hit);               // Next bounce
-} return result;
-=================================== */
-
 Ray generateRay(uint2 gid, constant GPUCamera* cam, uint2 gridSize);
 float3 traceRay(Ray ray, thread Sphere* spheres, Light light);
 bool intersectSphere(Ray ray, Sphere sphere, float tMin, float tMax, thread Hit& hit);
